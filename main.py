@@ -4,9 +4,19 @@ import numpy as np
 from scipy.io.wavfile import write
 from scipy.fft import fft, fftfreq
 from scipy import signal
-from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
-                             QLabel, QDoubleSpinBox, QComboBox, QPushButton, 
-                             QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox)
+from PyQt5.QtWidgets import (
+    QApplication,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QDoubleSpinBox,
+    QComboBox,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QHeaderView,
+)
 import pyqtgraph as pg
 
 class Generator:
@@ -34,7 +44,7 @@ class Generator:
         return self.t, self.y
 
     def triangle(self, f, A):
-        self.y = A * signal.sawtooth(2 * np.pi * f * self.t, width=0.5)
+        self.y = A * signal.sawtooth(2 * np.pi * f * self.t, width=1)
         return self.t, self.y
 
     def white_noise(self, A):
@@ -51,6 +61,7 @@ class Generator:
     def save_wav(self, filename):
         scaled = np.int16(self.y / np.max(np.abs(self.y)) * 32767)
         write(filename, int(self.fs), scaled)
+        print("wav saved to ", filename)
 
     def save_signal_csv(self, filename):
         with open(filename, 'w', newline='') as f:
@@ -58,6 +69,7 @@ class Generator:
             writer.writerow(['Time', 'Amplitude'])
             for t_val, y_val in zip(self.t, self.y):
                 writer.writerow([t_val, y_val])
+        print("signal saved to ", filename)
 
     def save_fft_csv(self, filename):
         xf, yf = self.get_fft()
@@ -66,6 +78,7 @@ class Generator:
             writer.writerow(['Frequency', 'Magnitude'])
             for f_val, m_val in zip(xf, yf):
                 writer.writerow([f_val, m_val])
+        print("fft saved to ", filename)
 
 class App(QWidget):
     def __init__(self):
@@ -152,6 +165,7 @@ class App(QWidget):
         self.table = QTableWidget()
         self.table.setColumnCount(2)
         self.table.setHorizontalHeaderLabels(['Czas [s]', 'Wartość'])
+        # Cała szerokość, zamiast małej tabelki
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         main_layout.addWidget(self.table)
 
